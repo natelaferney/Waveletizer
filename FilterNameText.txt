@@ -1,0 +1,1 @@
+['Coif1', 'Coif2', 'Coif3', 'EvenSym1', 'EvenSym2', 'EvenSym3', 'Gaussian1', 'Gaussian2', 'Gaussian3', 'Haard', 'Himalayas', 'Lumps1', 'Lumps2', 'Mountain', 'NailBat', 'OddSym1', 'OddSym2', 'OddSym3', 'Ridges1', 'Ridges2', 'Ridges3', 'Sep1', 'Sep2', 'Sep3', 'SharpValleys', 'SmoothValleys1', 'SmoothValleys2', 'SmoothValleys3', 'Spike1', 'Spike2', 'Spike3', 'Stairs1', 'Stairs2']
