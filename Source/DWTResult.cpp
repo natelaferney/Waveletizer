@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "WaveletFilters3.h"
+#include <cmath>
 
 
 DWTResult::DWTResult() :
