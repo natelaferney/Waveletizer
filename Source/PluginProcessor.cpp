@@ -238,7 +238,7 @@ void WaveletizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		dwtResult.idwt(waveletLevel);
 		for (int i = 0; i < K; ++i)
 		{
-			temp = std::polar(dwtResult.result[i], atan2(complexBufferFFT[i].i, complexBufferFFT[i].r));
+            temp = std::polar((dwtResult.result[i] < 0) ? 0.0f : dwtResult.result[i], atan2(complexBufferFFT[i].i, complexBufferFFT[i].r));
 			complexBufferFFT[i].r = std::real(temp) / N;
 			complexBufferFFT[i].i = std::imag(temp) / N;
 		}

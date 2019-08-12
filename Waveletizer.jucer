@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="rdCb9Q" name="Waveletizer" projectType="audioplug" jucerVersion="5.4.3"
+<JUCERPROJECT id="rdCb9Q" name="Waveletizer" projectType="audioplug" jucerVersion="5.4.1"
               companyName="NateOnTheBeat" companyWebsite="www.nateonthebeat.com"
               pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="Kquka7" name="Waveletizer">
