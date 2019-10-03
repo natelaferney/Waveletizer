@@ -2,3 +2,6 @@ Builds/
 JuceLibraryCode/
 *.py
 *.html
+*.exe
+*.vst3
+*.zip
