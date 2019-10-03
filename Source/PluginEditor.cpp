@@ -16,7 +16,7 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	coarseKnob->setSliderStyle(Slider::Rotary);
 	coarseKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
 	coarseKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
-	coarseKnob->setTextValueSuffix(" dB Body");
+	coarseKnob->setTextValueSuffix(" dB");
 	coarseKnob->setBounds(25, 50, 200, 200);
 	coarseKnob->addListener(this);
 	coarseKnobAttachment.reset(new SliderAttachment(valueTreeState, "coarse", *coarseKnob));
@@ -32,7 +32,7 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	detailKnob->setSliderStyle(Slider::Rotary);
 	detailKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
 	detailKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
-	detailKnob->setTextValueSuffix(" dB Detail");
+	detailKnob->setTextValueSuffix(" dB");
 	detailKnob->setBounds(25, 250, 200, 200);
 	detailKnob->addListener(this);
 	detailKnobAttachment.reset(new SliderAttachment(valueTreeState, "detail", *detailKnob));
@@ -48,7 +48,7 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	outputGainKnob->setSliderStyle(Slider::Rotary);
 	outputGainKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
 	outputGainKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
-	outputGainKnob->setTextValueSuffix("Output Gain");
+	outputGainKnob->setTextValueSuffix(" dB");
 	outputGainKnob->setBounds(25, 450,200, 200);
 	outputGainKnob->addListener(this);
 	outputGainKnobAttachment.reset(new SliderAttachment(valueTreeState, "outputGain", *outputGainKnob));
@@ -65,7 +65,7 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	mixKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
 	mixKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
 	mixKnob->setNumDecimalPlacesToDisplay(1);
-	mixKnob->setTextValueSuffix("Mix");
+	//mixKnob->setTextValueSuffix("Mix");
 	mixKnob->setBounds(250, 450, 200, 200);
 	mixKnob->addListener(this);
 	mixKnob->setComponentID("mixKnob");
