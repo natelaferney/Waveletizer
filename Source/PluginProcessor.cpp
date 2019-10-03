@@ -50,13 +50,15 @@ WaveletizerAudioProcessor::WaveletizerAudioProcessor() :
 	level = parameters.getRawParameterValue("level");
 	waveletFilterFloat = parameters.getRawParameterValue("waveletFilter");
 	cfgFFT = NULL;
-	cfgFFT = NULL;
+	cfgIFFT = NULL;
 }
 
 WaveletizerAudioProcessor::~WaveletizerAudioProcessor()
 {
 	kiss_fftr_free(cfgFFT);
 	kiss_fftr_free(cfgIFFT);
+	cfgFFT = NULL;
+	cfgIFFT = NULL;
 }
 
 //==============================================================================
@@ -281,7 +283,7 @@ void WaveletizerAudioProcessor::getStateInformation (MemoryBlock& destData)
 
 void WaveletizerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-	XmlElement * xmlState = getXmlFromBinary(data, sizeInBytes);
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 	if (xmlState != nullptr)
 	{
 		const float coarseValue = (float)xmlState->getDoubleAttribute("coarseParameter", 0.0f);
@@ -312,7 +314,6 @@ void WaveletizerAudioProcessor::setStateInformation (const void* data, int sizeI
 		parameters.getParameter("waveletFilter")->endChangeGesture();
 		parameters.getParameter("level")->endChangeGesture();
 	}
-	delete xmlState;
 }
 
 //==============================================================================
