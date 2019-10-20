@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="rdCb9Q" name="NateOnTheBeat PreGain Amplifier" projectType="audioplug"
-              jucerVersion="5.4.4" companyName="NateOnTheBeat" companyWebsite="www.nateonthebeat.com"
+              jucerVersion="5.4.3" companyName="NateOnTheBeat" companyWebsite="www.nateonthebeat.com"
               pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="Kquka7" name="NateOnTheBeat PreGain Amplifier">
     <GROUP id="{BA2575AC-F944-2387-7843-7E5ACF19F3E3}" name="Source">
@@ -55,7 +55,7 @@
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" vst3BinaryLocation="/Library/Audio/Plug-Ins/VST3/"/>
-        <CONFIGURATION isDebug="0" name="Release" vst3BinaryLocation="/Library/Audio/Plug-Ins/VST3/"/>
+        <CONFIGURATION isDebug="0" name="Release" vst3BinaryLocation="$(HOME)/Library/Audio/Plug-Ins/VST3/"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="../../juce"/>
