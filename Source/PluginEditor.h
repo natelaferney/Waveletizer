@@ -23,6 +23,8 @@ private:
 	void fillComboBox(ComboBox * comboBox);
     WaveletizerAudioProcessor& processor;
 	AudioProcessorValueTreeState& valueTreeState;
+	ScopedPointer<Slider> inputGainKnob;
+	ScopedPointer<SliderAttachment>  inputGainKnobAttachment;
 	ScopedPointer<Slider> coarseKnob;
 	ScopedPointer<SliderAttachment> coarseKnobAttachment;
 	ScopedPointer<Slider> detailKnob;
@@ -35,12 +37,16 @@ private:
 	ScopedPointer<ComboBoxAttachment> waveletComboBoxAttachment;
 	ScopedPointer<ComboBox> levelComboBox;
 	ScopedPointer<ComboBoxAttachment> levelComboBoxAttachment;
+	ScopedPointer<ComboBox> softClipperComboBox;
+	ScopedPointer<ComboBoxAttachment> softClipperComboBoxAttachment;
+	ScopedPointer<Label> inputGainLabel;
 	ScopedPointer<Label> bodyLabel;
 	ScopedPointer<Label> detailLabel;
 	ScopedPointer<Label> mixLabel;
 	ScopedPointer<Label> outputGainLabel;
 	ScopedPointer<Label> waveletComboBoxLabel;
 	ScopedPointer<Label> levelComboBoxLabel;
+	ScopedPointer<Label> softClipperComboBoxLabel;
 	DecibelKnobLookAndFeel decibelKnobLookAndFeel;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveletizerAudioProcessorEditor)
 };

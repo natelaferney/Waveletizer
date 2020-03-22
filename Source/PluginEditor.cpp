@@ -40,7 +40,24 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	detailLabel->setBounds(125, 225, 150, 50);
 	detailLabel->setText("Detail Gain", dontSendNotification);
 
+	//input gain knob
+	addAndMakeVisible(inputGainKnob = new Slider());
+	inputGainKnob->setRange(-20.0f, 20.0f, 0.1f);
+	inputGainKnob->setValue(0);
+	inputGainKnob->setPopupMenuEnabled(false);
+	inputGainKnob->setSliderStyle(Slider::Rotary);
+	inputGainKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
+	inputGainKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
+	inputGainKnob->setTextValueSuffix(" dB");
+	inputGainKnob->setBounds(25, 450,200, 200);
+	inputGainKnob->addListener(this);
+	inputGainKnobAttachment.reset(new SliderAttachment(valueTreeState, "inputGain", *inputGainKnob));
+	addAndMakeVisible(inputGainLabel = new Label());
+	inputGainLabel->setBounds(125, 425, 150, 50);
+	inputGainLabel->setText("Input Gain", dontSendNotification);
+
 	//output gain knob
+
 	addAndMakeVisible(outputGainKnob = new Slider());
 	outputGainKnob->setRange(-20.0f, 20.0f, 0.1f);
 	outputGainKnob->setValue(0);
@@ -49,12 +66,13 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	outputGainKnob->setRotaryParameters(MathConstants<float>::pi * 1.3f, MathConstants<float>::pi * 2.7f, true);
 	outputGainKnob->setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
 	outputGainKnob->setTextValueSuffix(" dB");
-	outputGainKnob->setBounds(25, 450,200, 200);
+	outputGainKnob->setBounds(250, 250, 200, 200);
 	outputGainKnob->addListener(this);
 	outputGainKnobAttachment.reset(new SliderAttachment(valueTreeState, "outputGain", *outputGainKnob));
 	addAndMakeVisible(outputGainLabel = new Label());
-	outputGainLabel->setBounds(125, 425, 150, 50);
+	outputGainLabel->setBounds(350, 225, 150, 50);
 	outputGainLabel->setText("Output Gain", dontSendNotification);
+
 
 	//mix knob
 	addAndMakeVisible(mixKnob = new Slider());
@@ -75,29 +93,18 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	mixLabel->setText("Mix", dontSendNotification);
 	
 	//wavelet combo box 
-	/*
-	static const StringArray waveletFilterCollection = { "Coif1", "Coif2", "Coif3", "EvenSym1", "EvenSym2",
-		"EvenSym3", "Gaussian1", "Gaussian2", "Gaussian3", "Haard", "Himalayas", "Lumps1", "Lumps2", "Mountain",
-		"NailBat", "OddSym1", "OddSym2", "OddSym3", "Ridges1", "Ridges2", "Ridges3", "Sep1", "Sep2", "Sep3",
-		"SharpValleys", "SmoothValleys1", "SmoothValleys2", "SmoothValleys3", "Spike1", "Spike2", "Spike3", "Stairs1", "Stairs2" };
-	
-	for (int i = 0; i < waveletFilterCollection.size(); ++i)
-	{
-		waveletComboBox->addItem(waveletFilterCollection[i], i + 1);
-	}
-	*/
 	addAndMakeVisible(waveletComboBox = new ComboBox());
 	fillComboBox(waveletComboBox);
-	waveletComboBox->setBounds(250, 100, 150, 40);
+	waveletComboBox->setBounds(250, 60, 150, 30);
 	waveletComboBox->addListener(this);
 	waveletComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "waveletFilter", *waveletComboBox));
 	addAndMakeVisible(waveletComboBoxLabel = new Label());
-	waveletComboBoxLabel->setBounds(250, 60, 100, 50);
+	waveletComboBoxLabel->setBounds(250, 20, 100, 50);
 	waveletComboBoxLabel->setText("Filter", dontSendNotification);
 
 	//level combo box
 	addAndMakeVisible(levelComboBox = new ComboBox());
-	levelComboBox->setBounds(250, 180, 50, 40);
+	levelComboBox->setBounds(250, 130, 50, 30);
 	levelComboBox->addListener(this);
 	const StringArray levelChoices = { "1", "2", "3", "4" };
 	for (int i = 0; i < levelChoices.size(); ++i)
@@ -106,8 +113,22 @@ WaveletizerAudioProcessorEditor::WaveletizerAudioProcessorEditor (WaveletizerAud
 	}
 	levelComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "level", *levelComboBox));
 	addAndMakeVisible(levelComboBoxLabel = new Label());
-	levelComboBoxLabel->setBounds(250, 140, 180, 50);
+	levelComboBoxLabel->setBounds(250, 90, 100, 50);
 	levelComboBoxLabel->setText("Level", dontSendNotification);
+
+	//soft clipper combo box
+	addAndMakeVisible(softClipperComboBox = new ComboBox());
+	softClipperComboBox->setBounds(250, 200, 150, 30);
+	softClipperComboBox->addListener(this);
+	const StringArray softClipperChoices = { "None", "Hyperbolic Tangent", "Algebraic", "Arc Tangent", "Fast Clipper" };
+	for (int i = 0; i < softClipperChoices.size(); ++i)
+	{
+		softClipperComboBox->addItem(softClipperChoices[i], i+1);
+	}
+	softClipperComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "softClipper", *softClipperComboBox));
+	addAndMakeVisible(softClipperComboBoxLabel = new Label());
+	softClipperComboBoxLabel->setBounds(250, 160, 100, 50);
+	softClipperComboBoxLabel->setText("Soft Clipper", dontSendNotification);
 }
 
 WaveletizerAudioProcessorEditor::~WaveletizerAudioProcessorEditor()

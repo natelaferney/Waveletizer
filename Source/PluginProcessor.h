@@ -51,6 +51,8 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	float softClippingFunction(float x, int mode);
+
 private:
     //==============================================================================
 	AudioProcessorValueTreeState parameters;
@@ -60,9 +62,11 @@ private:
 	float * coarse;
 	float * detail;
 	float * mixParameter;
+	float * inputGain;
 	float * outputGain;
 	float * level;
 	float * waveletFilterFloat;
+	float * softClipper;
 	int oldSamplesPerBlock{ 0 };
 	kiss_fftr_cfg cfgFFT;
 	kiss_fftr_cfg cfgIFFT;
