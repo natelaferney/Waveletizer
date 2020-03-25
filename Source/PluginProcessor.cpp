@@ -8,6 +8,7 @@ extern "C" {
 #include "KissFFT/tools/kiss_fftr.h"
 }
 #include <complex>
+#include "SigmoidFunctions.h"
 
 static const int MINIMUM_BUFFER_SIZE = 32;
 static const float BUFFER_OFFSET_FACTOR = 1.5;
@@ -20,6 +21,8 @@ WaveletizerAudioProcessor::WaveletizerAudioProcessor() :
 	parameters(*this, nullptr, Identifier("Waveletizer"),
 		{
 			std::make_unique<AudioParameterFloat>
+			("inputGain", "Input Gain", NormalisableRange<float>(-20.0f, 20.0f, 0.1f), 0.0f),
+			std::make_unique<AudioParameterFloat>
 			("coarse", "Coarse", NormalisableRange<float>(-20.0f, 20.0f, 0.1f), 0.0f),
 			std::make_unique<AudioParameterFloat>
 			("detail", "Detail", NormalisableRange<float>(-20.0f, 20.0f, 0.1f), 0.0f),
@@ -30,7 +33,9 @@ WaveletizerAudioProcessor::WaveletizerAudioProcessor() :
 			std::make_unique<AudioParameterInt>
 			("level", "Level", 1, 4, 1),
 			std::make_unique<AudioParameterChoice>
-			("waveletFilter", "Wavelet Filter", waveletFilterCollection, 0)
+			("waveletFilter", "Wavelet Filter", waveletFilterCollection, 0),
+			std::make_unique<AudioParameterInt>
+			("softClipper", "Soft Clipper Choice", 0, 5, 0)
 	}),
 #ifndef JucePlugin_PreferredChannelConfigurations
 	AudioProcessor(BusesProperties()
@@ -46,9 +51,11 @@ WaveletizerAudioProcessor::WaveletizerAudioProcessor() :
 	coarse = parameters.getRawParameterValue("coarse");
 	detail = parameters.getRawParameterValue("detail");
 	mixParameter = parameters.getRawParameterValue("mix");
+	inputGain = parameters.getRawParameterValue("inputGain");
 	outputGain = parameters.getRawParameterValue("outputGain");
 	level = parameters.getRawParameterValue("level");
 	waveletFilterFloat = parameters.getRawParameterValue("waveletFilter");
+	softClipper = parameters.getRawParameterValue("softClipper");
 	cfgFFT = NULL;
 	cfgIFFT = NULL;
 }
@@ -172,9 +179,11 @@ void WaveletizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	std::complex<float> temp;
 	const int currentWaveletChoiceIndex = (int)*waveletFilterFloat;
 	const std::string currentWaveletChoice = waveletFilterCollection[currentWaveletChoiceIndex].toStdString();
-	const int waveletLevel = (int)*level;
+	const int waveletLevel = (int) *level;
+	const int clippingMode = (int) *softClipper;
 	const float coarseGain = Decibels::decibelsToGain(*coarse);
 	const float detailGain = Decibels::decibelsToGain(*detail);
+	const float inputGainDb = Decibels::decibelsToGain(*inputGain);
 	const float outputGainDb = Decibels::decibelsToGain(*outputGain);
 	const float mixValue = *mixParameter / 100;
 	float newSampleValue;
@@ -246,14 +255,45 @@ void WaveletizerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		}
 		
 		kiss_fftri(cfgIFFT, &complexBufferFFT[0], &realBufferFFT[0]);
+		//apply input gain
+
+
+		//apply soft clipper function
+
 		//apply output gain
-		std::transform(realBufferFFT.begin(), realBufferFFT.end(), realBufferFFT.begin(), [outputGainDb](auto& c) {return c * outputGainDb; });
+		//std::transform(realBufferFFT.begin(), realBufferFFT.end(), realBufferFFT.begin(), [outputGainDb](auto& c) {return c * outputGainDb; });
 		for (int i = 0; i < bufferSize; ++i)
 		{
-			newSampleValue = (mixValue * realBufferFFT[i]) + ((1.0 - mixValue) * buffer.getSample(channel, i));
+			newSampleValue = realBufferFFT[i] * inputGainDb;
+			newSampleValue = softClippingFunction(newSampleValue, clippingMode);
+			newSampleValue = (outputGainDb * mixValue * realBufferFFT[i]) + ((1.0 - mixValue) * buffer.getSample(channel, i));
 			buffer.setSample(channel, i, newSampleValue);
 		}
     }
+}
+
+float WaveletizerAudioProcessor::softClippingFunction(float x, int mode)
+{
+	float ret;
+	switch (mode)
+	{
+	case 1:
+		ret = SigmoidFunctions::hyperbolicTangent(x);
+		break;
+	case 2:
+		ret = SigmoidFunctions::algebraic(x);
+		break;
+	case 3:
+		ret = SigmoidFunctions::arcTangent(x);
+		break;
+	case 4:
+		ret = SigmoidFunctions::fastClip(x);
+		break;
+	default:
+		ret = x;
+		break;
+	}
+	return ret;
 }
 
 //==============================================================================
@@ -274,9 +314,11 @@ void WaveletizerAudioProcessor::getStateInformation (MemoryBlock& destData)
 	xml->setAttribute(Identifier("coarseParameter"), (double)parameters.getParameter("coarse")->convertTo0to1(*coarse));
 	xml->setAttribute(Identifier("detailParameter"), (double)parameters.getParameter("detail")->convertTo0to1(*detail));
 	xml->setAttribute(Identifier("mixParameter"), (double)parameters.getParameter("mix")->convertTo0to1(*mixParameter));
+	xml->setAttribute(Identifier("inputGainParameter"), (double)parameters.getParameter("inputGain")->convertTo0to1(*inputGain));
 	xml->setAttribute(Identifier("outputGainParameter"), (double)parameters.getParameter("outputGain")->convertTo0to1(*outputGain));
 	xml->setAttribute(Identifier("waveletFilterType"), (double)parameters.getParameter("waveletFilter")->convertTo0to1(*waveletFilterFloat));
 	xml->setAttribute(Identifier("levelType"), (double)parameters.getParameter("level")->convertTo0to1(*level));
+	xml->setAttribute(Identifier("softClipperType"), (double)parameters.getParameter("softClipper")->convertTo0to1(*softClipper));
 	copyXmlToBinary(*xml, destData);
 	delete xml;
 }
@@ -286,33 +328,41 @@ void WaveletizerAudioProcessor::setStateInformation (const void* data, int sizeI
 	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 	if (xmlState != nullptr)
 	{
-		const float coarseValue = (float)xmlState->getDoubleAttribute("coarseParameter", 0.0f);
-		const float detailValue = (float)xmlState->getDoubleAttribute("detailParameter", 0.0f);
+		const float coarseValue = (float)xmlState->getDoubleAttribute("coarseParameter", 0.5f);
+		const float detailValue = (float)xmlState->getDoubleAttribute("detailParameter", 0.5f);
 		const float mixValue = (float)xmlState->getDoubleAttribute("mixParameter", 1.0f);
-		const float outputGainValue = (float)xmlState->getDoubleAttribute("outputGainParameter", 0.0f);
+		const float inputGainValue = (float)xmlState->getDoubleAttribute("inputGainParameter", 0.5f);
+		const float outputGainValue = (float)xmlState->getDoubleAttribute("outputGainParameter", 0.5f);
 		const float waveletTypeValue = (float)xmlState->getDoubleAttribute("waveletFilterType", 0.0f);
 		const float levelValue = (float)xmlState->getDoubleAttribute("levelType", 0.0f);
+		const float softClipperValue = (float)xmlState->getDoubleAttribute("softClipperType", 0.0f);
 	
 		parameters.getParameter("coarse")->beginChangeGesture();
 		parameters.getParameter("detail")->beginChangeGesture();
 		parameters.getParameter("mix")->beginChangeGesture();
+		parameters.getParameter("inputGain")->beginChangeGesture();
 		parameters.getParameter("outputGain")->beginChangeGesture();
 		parameters.getParameter("waveletFilter")->beginChangeGesture();
 		parameters.getParameter("level")->beginChangeGesture();
+		parameters.getParameter("softClipper")->beginChangeGesture();
 
 		parameters.getParameter("coarse")->setValueNotifyingHost(coarseValue);
 		parameters.getParameter("detail")->setValueNotifyingHost(detailValue);
 		parameters.getParameter("mix")->setValueNotifyingHost(mixValue);
+		parameters.getParameter("inputGain")->setValueNotifyingHost(inputGainValue);
 		parameters.getParameter("outputGain")->setValueNotifyingHost(outputGainValue);
 		parameters.getParameter("waveletFilter")->setValueNotifyingHost(waveletTypeValue);
 		parameters.getParameter("level")->setValueNotifyingHost(levelValue);
+		parameters.getParameter("softClipper")->setValueNotifyingHost(softClipperValue);
 
 		parameters.getParameter("coarse")->endChangeGesture();
 		parameters.getParameter("detail")->endChangeGesture();
 		parameters.getParameter("mix")->endChangeGesture();
+		parameters.getParameter("inputGain")->endChangeGesture();
 		parameters.getParameter("outputGain")->endChangeGesture();
 		parameters.getParameter("waveletFilter")->endChangeGesture();
 		parameters.getParameter("level")->endChangeGesture();
+		parameters.getParameter("softClipper")->endChangeGesture();
 	}
 }
 
