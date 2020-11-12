@@ -49,11 +49,16 @@ void DecibelKnobLookAndFeel::drawRotarySlider(Graphics& g, int x, int y, int wid
 	//s.quadraticTo(x + radius, y, x + radius, y + 2 * radius);
 	float radiansMod = std::fmod(angle, 2 * MathConstants<float>::pi);
 	//auto leftSliderAngle = std::fmin(radiansMod, MathConstants<float>::pi);
-	if (slider.getComponentID() == "mixKnob")
+	if (slider.getName() == "AngledKnob")
 	{
 		//s.addArc(rx, ry, 2 * radius, 2 * radius, MathConstants<float>::pi, std::fmin(angle, centerAngle), true);
 		//s.addArc(rx, ry, 2 * radius, 2 * radius, std::fmax(angle, centerAngle), 3 * MathConstants<float>::pi, true);
 		s.addArc(rx, ry, 2 * radius, 2 * radius, rotaryEndAngle, angle + 2* MathConstants<float>::pi, true);
+	}
+	else if (slider.getName() == "SymKnob")
+	{
+		s.addArc(rx, ry, 2 * radius, 2 * radius, MathConstants<float>::pi, std::fmin(angle, centerAngle), true);
+		s.addArc(rx, ry, 2 * radius, 2 * radius, std::fmax(angle, centerAngle), 3 * MathConstants<float>::pi, true);
 	}
 	else
 	{
