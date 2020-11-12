@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="rdCb9Q" name="NateOnTheBeat PreGain Amplifier" projectType="audioplug"
-              jucerVersion="5.4.4" companyName="NateOnTheBeat" companyWebsite="www.nateonthebeat.com"
-              pluginFormats="buildAU,buildStandalone,buildVST3">
-  <MAINGROUP id="Kquka7" name="NateOnTheBeat PreGain Amplifier">
+<JUCERPROJECT id="rdCb9Q" name="Waveletizer PreGain Amplifier" projectType="audioplug"
+              jucerVersion="5.4.4" pluginFormats="buildAU,buildStandalone,buildVST3">
+  <MAINGROUP id="Kquka7" name="Waveletizer PreGain Amplifier">
     <GROUP id="{BA2575AC-F944-2387-7843-7E5ACF19F3E3}" name="Source">
+      <FILE id="KPYR1o" name="WaveletizerComponents.cpp" compile="1" resource="0"
+            file="Source/WaveletizerComponents.cpp"/>
       <FILE id="SmEEgH" name="SigmoidFunctions.h" compile="0" resource="0"
             file="Source/SigmoidFunctions.h"/>
       <FILE id="w0M46W" name="kiss_fftr.c" compile="1" resource="0" file="Source/KissFFT/tools/kiss_fftr.c"/>
